@@ -11,9 +11,11 @@
         android:layout_width="match_parent"
         android:layout_height="?attr/actionBarSize">
 
-        <RelativeLayout
+        <LinearLayout
             android:layout_width="match_parent"
-            android:layout_height="wrap_content">
+            android:layout_height="wrap_content"
+            android:orientation="horizontal"
+            android:gravity="end">
             <ImageView
                 android:id="@+id/Imageview_notes"
                 android:layout_alignParentEnd="true"
@@ -22,7 +24,16 @@
                 android:background="@android:color/transparent"
                 android:layout_width="?attr/actionBarSize"
                 android:layout_height="?attr/actionBarSize"/>
-        </RelativeLayout>
+
+            <ImageView
+                android:id="@+id/Imageview_delete"
+                android:layout_alignParentEnd="true"
+                android:padding="8dp"
+                android:src="@drawable/ic_delete"
+                android:background="@android:color/transparent"
+                android:layout_width="?attr/actionBarSize"
+                android:layout_height="?attr/actionBarSize"/>
+        </LinearLayout>
     </androidx.appcompat.widget.Toolbar>
 
     <EditText

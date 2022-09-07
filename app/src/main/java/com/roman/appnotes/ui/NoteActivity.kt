@@ -4,10 +4,15 @@ import android.annotation.SuppressLint
 import androidx.appcompat.app.AppCompatActivity
 import android.os.Bundle
 import android.util.Log
+import android.view.View
+import android.widget.Toast
+import androidx.lifecycle.ViewModelProvider
 import com.roman.appnotes.R
 import com.roman.appnotes.data.database.NoteDatabase
 import com.roman.appnotes.data.model.Note
 import com.roman.appnotes.databinding.ActivityNoteBinding
+import com.roman.appnotes.utils.Utilsfunction
+import com.roman.appnotes.viewmodel.Noteviewmodel
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
@@ -18,58 +23,49 @@ import java.util.*
 
 class NoteActivity : AppCompatActivity() {
     private lateinit var binding : ActivityNoteBinding
-    lateinit var noteintent : Note
-    private var intentstate = false
+    private lateinit var viewmodel : Noteviewmodel
+    private lateinit var intentnote : Note
 
-    private lateinit var database : NoteDatabase
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         binding = ActivityNoteBinding.inflate(layoutInflater)
         setContentView(binding.root)
+        intentnote = intent.extras?.get("NOTE") as Note
 
+        viewmodel = ViewModelProvider(this, ViewModelProvider
+            .AndroidViewModelFactory
+            .getInstance(application))
+            .get(Noteviewmodel::class.java)
 
-        database = NoteDatabase.getDatabase(this)
-
-        try{
-            supportActionBar?.title = "Edit"
-            noteintent = intent.extras?.get("NOTE") as Note
-            binding.editTitle.setText(noteintent.title)
-            binding.editNote.setText(noteintent.notes)
-            intentstate = true
-        }catch(e : Exception){
-            supportActionBar?.title = "New note"
-            Log.e("Error intent get",e.message.toString())
-        }
-
+        binding.editTitle.setText(intentnote.title)
+        binding.editNote.setText(intentnote.notes)
 
 
         binding.ImageviewNotes.setOnClickListener {
-            val title = binding.editTitle.text.toString()
+            try{
+                val note =Note(binding.editTitle.text.toString(),binding.editNote.text.toString(),getDate(),getnumcolor())
+                Toast.makeText(this, note.toString(),Toast.LENGTH_SHORT).show()
+            }catch(e : Exception){
+                println(e.message.toString())
+            }
+
+            /*val title = binding.editTitle.text.toString()
             val note = binding.editNote.text.toString()
 
-            if(intentstate){
-                var noteupdate = Note(title, note, getDate(), noteintent.color, noteintent.pinned)
-                CoroutineScope(Dispatchers.IO).launch {
-                    try{
-                        database.note().updatenote(noteupdate)
-                    }catch(e : Exception){
-                        Log.e("Error update note",e.message.toString())
-                    }
-                }
-
-            }else{
-                val notenew = Note(title,note,getDate(),getnumcolor(),false)
-
-                CoroutineScope(Dispatchers.IO).launch {
-                    try{
-                        database.note().insertNote(notenew)
-                        println("Si kemoo khee")
-
-                    }catch(e : Exception){
-                        println("Erro es : ${e.message}")
-                    }
-                }
+            val notenew = Note(title, note,getDate(), getnumcolor(), false)
+            try{
+                viewmodel.addNote(notenew)
+                finish()
+            }catch (e : Exception){
+                println(e.message.toString())
             }
+
+             */
+
+        }
+
+        binding.ImageviewDelete.setOnClickListener {
+
         }
     }
 

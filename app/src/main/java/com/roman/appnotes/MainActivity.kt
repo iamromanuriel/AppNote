@@ -4,36 +4,40 @@ import android.content.Intent
 import androidx.appcompat.app.AppCompatActivity
 import android.os.Bundle
 import androidx.lifecycle.Observer
+import androidx.lifecycle.ViewModelProvider
 import androidx.recyclerview.widget.GridLayoutManager
-import androidx.recyclerview.widget.LinearLayoutManager
 import com.roman.appnotes.adapter.NoteAdapter
-import com.roman.appnotes.data.database.NoteDatabase
 import com.roman.appnotes.databinding.ActivityMainBinding
 import com.roman.appnotes.ui.NoteActivity
+import com.roman.appnotes.viewmodel.Noteviewmodel
 
 class MainActivity : AppCompatActivity() {
 
     private lateinit var binding : ActivityMainBinding
-    private lateinit var database : NoteDatabase
+    lateinit var viewmodel : Noteviewmodel
+
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         binding = ActivityMainBinding.inflate(layoutInflater)
         setContentView(binding.root)
 
-        database = NoteDatabase.getDatabase(this)
+        //database = NoteDatabase.getDatabase(this)
+        viewmodel = ViewModelProvider(this, ViewModelProvider
+            .AndroidViewModelFactory
+            .getInstance(application))
+            .get(Noteviewmodel::class.java)
 
-        var recycler = binding.recyclerhome
+        val recycler = binding.recyclerhome
 
         binding.buttonAdd.setOnClickListener {
 
             startActivity(Intent(this, NoteActivity::class.java))
         }
 
-        database.note().getallnote().observe(this, Observer { listNote ->
+        viewmodel.allNote.observe(this, Observer {listNote ->
 
-            println(listNote.toString())
-            var manager = GridLayoutManager(this, 2)
-            var adapter = NoteAdapter(listNote)
+            val manager = GridLayoutManager(this, 2)
+            val adapter = NoteAdapter(listNote)
             recycler.hasFixedSize()
             recycler.layoutManager = manager
             recycler.adapter = adapter
