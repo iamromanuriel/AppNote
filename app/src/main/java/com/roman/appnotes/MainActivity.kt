@@ -35,7 +35,7 @@ class MainActivity : AppCompatActivity() {
         }
 
         viewmodel.allNote.observe(this, Observer {listNote ->
-
+            println("Tu lista es ${listNote}")
             val manager = GridLayoutManager(this, 2)
             val adapter = NoteAdapter(listNote)
             recycler.hasFixedSize()

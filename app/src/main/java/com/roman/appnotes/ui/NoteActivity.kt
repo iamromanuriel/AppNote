@@ -24,50 +24,65 @@ import java.util.*
 class NoteActivity : AppCompatActivity() {
     private lateinit var binding : ActivityNoteBinding
     private lateinit var viewmodel : Noteviewmodel
-    private lateinit var intentnote : Note
+    private var intentnote: Note ?= null
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         binding = ActivityNoteBinding.inflate(layoutInflater)
         setContentView(binding.root)
-        intentnote = intent.extras?.get("NOTE") as Note
+
 
         viewmodel = ViewModelProvider(this, ViewModelProvider
             .AndroidViewModelFactory
             .getInstance(application))
             .get(Noteviewmodel::class.java)
 
-        binding.editTitle.setText(intentnote.title)
-        binding.editNote.setText(intentnote.notes)
+        try{
+            intentnote = intent.extras?.get("NOTE") as Note
+        }catch(e: Exception){
+            intentnote = null
+        }
 
+        if(intentnote != null){
+            binding.editTitle.setText(intentnote!!.title)
+            binding.editNote.setText(intentnote!!.notes)
+        }else{
+            binding.ImageviewDelete.visibility = View.INVISIBLE
+
+        }
 
         binding.ImageviewNotes.setOnClickListener {
-            try{
-                val note =Note(binding.editTitle.text.toString(),binding.editNote.text.toString(),getDate(),getnumcolor())
-                Toast.makeText(this, note.toString(),Toast.LENGTH_SHORT).show()
-            }catch(e : Exception){
-                println(e.message.toString())
-            }
 
-            /*val title = binding.editTitle.text.toString()
+
+            val title = binding.editTitle.text.toString()
             val note = binding.editNote.text.toString()
-
-            val notenew = Note(title, note,getDate(), getnumcolor(), false)
-            try{
-                viewmodel.addNote(notenew)
-                finish()
-            }catch (e : Exception){
-                println(e.message.toString())
+            if(intentnote != null){
+                val noteupdate = Note(title, note,getDate(), intentnote?.color, intentnote!!.pinned,intentnote!!.id)
+                try{
+                    viewmodel.updateNote(noteupdate)
+                }catch (e : Exception){
+                    println(e.message.toString())
+                }
+            }else{
+                 val notenew = Note(title, note, getDate(),getnumcolor(),false)
+                try{
+                    viewmodel.addNote(notenew)
+                }catch (e: Exception){
+                    println(e.message)
+                }
             }
-
-             */
-
+            finish()
         }
 
         binding.ImageviewDelete.setOnClickListener {
-
+            try{
+                viewmodel.delete(intentnote!!)
+            }catch(e: Exception){
+                println(e.message)
+            }
         }
     }
+
 
     fun getnumcolor() : Int{
         var colors = listOf<Int>(
