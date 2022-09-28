@@ -1,11 +1,16 @@
 package com.roman.appnotes.ui
 
 import android.annotation.SuppressLint
+import android.content.DialogInterface
 import androidx.appcompat.app.AppCompatActivity
 import android.os.Bundle
 import android.util.Log
+import android.view.Menu
+import android.view.MenuInflater
+import android.view.MenuItem
 import android.view.View
 import android.widget.Toast
+import androidx.appcompat.app.AlertDialog
 import androidx.lifecycle.ViewModelProvider
 import com.roman.appnotes.R
 import com.roman.appnotes.data.database.NoteDatabase
@@ -46,41 +51,72 @@ class NoteActivity : AppCompatActivity() {
         if(intentnote != null){
             binding.editTitle.setText(intentnote!!.title)
             binding.editNote.setText(intentnote!!.notes)
-        }else{
-            binding.ImageviewDelete.visibility = View.INVISIBLE
-
         }
 
-        binding.ImageviewNotes.setOnClickListener {
 
+    }
 
-            val title = binding.editTitle.text.toString()
-            val note = binding.editNote.text.toString()
-            if(intentnote != null){
-                val noteupdate = Note(title, note,getDate(), intentnote?.color, intentnote!!.pinned,intentnote!!.id)
-                try{
-                    viewmodel.updateNote(noteupdate)
-                }catch (e : Exception){
-                    println(e.message.toString())
+    override fun onCreateOptionsMenu(menu: Menu): Boolean {
+        val inflater: MenuInflater = menuInflater
+        inflater.inflate(R.menu.popup_item, menu)
+        return true
+    }
+
+    override fun onOptionsItemSelected(item: MenuItem): Boolean {
+        return when (item.itemId){
+            R.id.pin ->{
+
+                val title = binding.editTitle.text.toString()
+                val note = binding.editNote.text.toString()
+                if(intentnote != null){
+                    val noteupdate = Note(title, note,getDate(), intentnote?.color, intentnote!!.pinned,intentnote!!.id)
+                    try{
+                        viewmodel.updateNote(noteupdate)
+                    }catch (e : Exception){
+                        println(e.message.toString())
+                    }
+                }else{
+                    val notenew = Note(title, note, getDate(),getnumcolor(),false)
+                    try{
+                        viewmodel.addNote(notenew)
+                    }catch (e: Exception){
+                        println(e.message)
+                    }
                 }
-            }else{
-                 val notenew = Note(title, note, getDate(),getnumcolor(),false)
+                finish()
+                true
+            }
+            R.id.delete ->{
                 try{
-                    viewmodel.addNote(notenew)
-                }catch (e: Exception){
+                    if(intentnote != null){
+                        showAlertDialog(intentnote)
+                    }else{
+                        Toast.makeText(this, "No puedes borrar",Toast.LENGTH_SHORT).show()
+                    }
+
+
+                }catch(e: Exception){
                     println(e.message)
                 }
+
+                true
             }
-            finish()
+            else -> super.onOptionsItemSelected(item)
         }
 
-        binding.ImageviewDelete.setOnClickListener {
-            try{
-                viewmodel.delete(intentnote!!)
-            }catch(e: Exception){
-                println(e.message)
-            }
-        }
+    }
+
+    fun showAlertDialog(note: Note?){
+        AlertDialog.Builder(this)
+            .setTitle("Advertencia")
+            .setMessage("¿Quires eliminar esta nota?")
+            .setPositiveButton(android.R.string.ok,
+            DialogInterface.OnClickListener { dialogInterface, i ->
+                viewmodel.delete(note!!)
+                finish()})
+            .setNegativeButton(android.R.string.cancel,
+            DialogInterface.OnClickListener { dialogInterface, i ->  })
+            .show()
     }
 
 

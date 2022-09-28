@@ -3,7 +3,7 @@
     android:layout_width="match_parent"
     android:layout_height="wrap_content"
     xmlns:app="http://schemas.android.com/apk/res-auto"
-    app:cardBackgroundColor="@color/white"
+    app:cardBackgroundColor="@color/note_yellow"
     android:id="@+id/notes_container"
     app:cardCornerRadius="8dp"
     app:cardElevation="8dp"
